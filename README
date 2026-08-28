@@ -1,41 +1,73 @@
-This README file contains information on the contents of the meta-walky layer.
+meta-walky
+==========
 
-Please see the corresponding sections below for details.
+This Yocto layer contains the "walky" distribution: an embedded Linux
+image running in kiosk mode, based on systemd and Wayland/Weston, with
+automatic login and a graphical application launched directly on boot.
 
 Dependencies
 ============
 
-  URI: <first dependency>
-  branch: <branch name>
+  URI: git://git.yoctoproject.org/poky
+  branch: scarthgap
 
-  URI: <second dependency>
-  branch: <branch name>
-
-  .
-  .
-  .
+This layer only depends on the "core" layer provided by poky
+(LAYERSERIES_COMPAT "scarthgap").
 
 Patches
 =======
 
-Please submit any patches against the meta-walky layer to the xxxx mailing list (xxxx@zzzz.org)
-and cc: the maintainer:
+Please submit any patches against the meta-walky layer to valentin.giaufer@gmail.com
 
-Maintainer: XXX YYYYYY <xxx.yyyyyy@zzzzz.com>
+Layer contents
+==============
+
+conf/distro/walky.conf
+  Definition of the "walky" distribution (based on poky.conf): systemd
+  as the init manager, PAM, usrmerge, and Wayland support.
+
+recipes-core/images/walky-image.bb
+  Main image, based on core-image-base, including:
+    - SSH server (openssh)
+    - Weston (+ examples) and Qt (qtbase, qtdeclarative)
+    - a "walky" user (groups video, input, audio, render, tty)
+
+recipes-core/base-files/base-files_%.bbappend
+  Installs a kiosk .profile (profile-walky-kiosk) into /etc/skel, used to
+  automatically start Weston on login.
+
+recipes-core/systemd/systemd_%.bbappend
+  Configures autologin on tty1 (autologin.conf) so the "walky" user is
+  logged in automatically at boot.
+
+recipes-graphics/weston/weston-init.bbappend
+  Installs the Weston configuration (weston.ini) and a systemd drop-in
+  unit (weston-user.conf). The weston.service/weston.socket service is
+  intentionally disabled (SYSTEMD_AUTO_ENABLE = "disable"): Weston is
+  started via /etc/skel/.profile (exec weston --socket=wayland-0)
+  instead of through systemd.
 
 Table of Contents
 =================
 
   I. Adding the meta-walky layer to your build
- II. Misc
-
+ II. Notes
 
 I. Adding the meta-walky layer to your build
 =================================================
 
-Run 'bitbake-layers add-layer meta-walky'
+From the root of your Yocto build:
 
-II. Misc
-========
+  bitbake-layers add-layer /path/to/meta-walky
 
---- replace with specific information about the meta-walky layer ---
+Then build the image:
+
+  bitbake walky-image
+
+II. Notes
+=========
+
+- Layer compatible with the "scarthgap" Yocto release series.
+- Kiosk mode relies on the combination of systemd autologin plus Weston
+  being launched from the "walky" user's .profile, rather than through
+  the weston.service systemd unit.
