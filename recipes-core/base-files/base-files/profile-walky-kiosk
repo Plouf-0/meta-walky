@@ -1,0 +1,4 @@
+if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
+    export XDG_RUNTIME_DIR=/run/user/$(id -u)
+    exec weston --socket=wayland-0
+fi
