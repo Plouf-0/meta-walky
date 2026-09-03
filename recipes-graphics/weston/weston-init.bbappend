@@ -10,14 +10,16 @@ do_install:append() {
     install -m 0644 ${WORKDIR}/weston-user.conf ${D}${systemd_system_unitdir}/weston.service.d/weston-user.conf
 }
 
+SYSTEMD_AUTO_ENABLE:${PN} = "disable"
+SYSTEMD_SERVICE:${PN} = "weston.service weston.socket"
+
 FILES:${PN} += "${sysconfdir}/xdg/weston/weston.ini \
     ${systemd_system_unitdir}/weston.service.d/weston-user.conf \
 "
 
-# weston.service et weston.socket sont désactivés : le lancement de Weston
-# passe par /etc/skel/.profile (exec weston --socket=wayland-0), pas par
-# le service systemd. On garde quand même l'installation de weston-user.conf
-# ci-dessus (inoffensive tant que le service est disabled) au cas où on
-# voudrait un jour retester l'approche "service systemd" plutôt que .profile.
-SYSTEMD_AUTO_ENABLE:${PN} = "disable"
-SYSTEMD_SERVICE:${PN} = "weston.service weston.socket"
+# TODO: le weston.ini installé ici référence maintenant
+# "modules=walky-hmi-controller.so" (ivi-shell) au lieu de kiosk-shell.
+# Le paquet walky-hmi-controller doit donc être présent sur l'image et son
+# .so accessible dans ${libexecdir}/weston avant que Weston ne démarre —
+# géré via IMAGE_INSTALL:append dans walky-image.bb (voir plus bas), pas
+# ici : ce bbappend ne fait qu'installer la config, pas le module lui-même.
