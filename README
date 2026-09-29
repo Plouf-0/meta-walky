@@ -33,7 +33,7 @@ recipes-core/images/walky-image.bb
     - a "walky" user (groups video, input, audio, render, tty)
 
 recipes-core/base-files/base-files_%.bbappend
-  Installs a kiosk .profile (profile-walky-kiosk) into /etc/skel, used to
+  Installs a kiosk .profile (profile-walky-boot) into /etc/skel, used to
   automatically start Weston on login.
 
 recipes-core/systemd/systemd_%.bbappend
