@@ -1,0 +1,15 @@
+if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
+    export XDG_RUNTIME_DIR=/run/user/$(id -u)
+
+    weston --socket=wayland-0 --log=/tmp/weston.log
+
+    # Wait for the Wayland socket to be ready before launching the client
+    while [ ! -S "$XDG_RUNTIME_DIR/wayland-0" ]; do
+        sleep 0.1
+    done
+
+    export QT_QPA_PLATFORM=wayland-ivi-shell
+    export IVI_SURFACE_ID=100   # convention menu=100, cf. walky-hmi-controller
+
+    exec walky-home
+fi
