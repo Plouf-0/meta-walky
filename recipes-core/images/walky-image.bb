@@ -10,6 +10,8 @@ IMAGE_INSTALL:append = " qtdeclarative"
 IMAGE_INSTALL:append = " weston-examples"
 IMAGE_INSTALL:append = " walky-hmi-controller"
 
+IMAGE_INSTALL:append = " walky-home"
+
 inherit extrausers
 
 EXTRA_USERS_PARAMS = "\
